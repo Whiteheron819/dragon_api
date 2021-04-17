@@ -10,7 +10,7 @@ DATE_FORMAT = "%Y-%m-%d"
 BEGIN_DATE = (datetime.datetime.today() - datetime.timedelta(days=1)).strftime(DATE_FORMAT)
 END_DATE = datetime.datetime.today().strftime(DATE_FORMAT)
 NO_MONEY_MESSAGE = 'Нет продаж по наличным за день'
-SUCESS_MESSAGE = 'Выгрузка успешна'
+SUCCESS_MESSAGE = 'Выгрузка успешна'
 AQSI_URL = f'https://api.aqsi.ru/pub/v2/Receipts?filtered.BeginDate={BEGIN_DATE}&filtered.EndDate={END_DATE}&filtered.Operation=1'
 AQSI_TOKEN = os.getenv('AQSI_TOKEN')
 MOE_DELO_URL = 'https://restapi.moedelo.org/accounting/api/v1/cashier/2544913/retailRevenue'
@@ -43,7 +43,7 @@ def create_document(day_amount):
             "Sum": day_amount
         }
         requests.post(MOE_DELO_URL, headers=headers)
-        return SUCESS_MESSAGE
+        return SUCCESS_MESSAGE
 
 
 if __name__ == '__main__':

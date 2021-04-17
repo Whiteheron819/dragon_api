@@ -42,7 +42,7 @@ def create_document(day_amount):
             "Description": f"Отчёт о продаже на точке Студия старинного танца Хрустальный дракон (ИД=2c88e77e-d0db-4c8f-aaba-af701d3b2395, ИНН=7804535190) на сумму {day_amount} руб",
             "Sum": day_amount
         }
-        orders = requests.post(MOE_DELO_URL, headers=headers)
+        requests.post(MOE_DELO_URL, headers=headers)
         return SUCESS_MESSAGE
 
 

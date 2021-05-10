@@ -13,7 +13,7 @@ NO_MONEY_MESSAGE = 'Нет продаж по наличным за день'
 SUCCESS_MESSAGE = 'Выгрузка успешна'
 AQSI_URL = f'https://api.aqsi.ru/pub/v2/Receipts?filtered.BeginDate={BEGIN_DATE}&filtered.EndDate={END_DATE}&filtered.Operation=1'
 AQSI_TOKEN = os.getenv('AQSI_TOKEN')
-MOE_DELO_URL = 'https://restapi.moedelo.org/accounting/api/v1/cashier/2544913/retailRevenue'
+MOE_DELO_URL = 'https://restapi.moedelo.org/accounting/api/v1/cashier/1/retailRevenue'
 MOE_DELO_TOKEN = os.getenv('MOE_DELO_TOKEN')
 
 
@@ -39,12 +39,13 @@ def create_document(day_amount):
         }
         document = {
             "DocDate": END_DATE,
-            "Description": f"Отчёт о продаже на точке Студия старинного танца Хрустальный дракон  (ИД=2c88e77e-d0db-4c8f-aaba-af701d3b2395, ИНН=7804535190) на сумму {day_amount} руб",
+            "Description": f"Отчёт о продаже на точке Студия старинного танца Хрустальный дракон (ИНН=7804535190) на сумму {day_amount} руб",
             "Sum": day_amount,
-            "ZReportNumber": 101
+            "ZReportNumber": '1100'
         }
-        return requests.post(MOE_DELO_URL, data=document, headers=headers).json()
+        requests.post(MOE_DELO_URL, data=document, headers=headers).json()
+        return SUCCESS_MESSAGE
 
 
 if __name__ == '__main__':
-    print(create_document(50))
+    print(create_document(get_orders()))

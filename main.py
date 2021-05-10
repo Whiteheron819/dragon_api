@@ -25,13 +25,14 @@ def get_orders():
         "x-client-key": AQSI_TOKEN
     }
     orders = requests.get(AQSI_URL, headers=headers).json()['rows']
+    z = requests.get(AQSI_URL, headers=headers).json()['rows'][0]['shiftNumber']
     for i in range(len(orders)):
         if orders[i]['content']['checkClose']['payments'][0]['acquiringData'] is None:
             amount_rub += int(orders[i]['content']['checkClose']['payments'][0]['amount'])
-    return amount_rub
+    return amount_rub, z
 
 
-def create_document(day_amount):
+def create_document(day_amount, z_number):
 
     if day_amount == 0:
         return NO_MONEY_MESSAGE
@@ -43,12 +44,11 @@ def create_document(day_amount):
             "DocDate": BEGIN_DATE,
             "Description": f"Отчёт о продаже на точке Студия старинного танца Хрустальный дракон (ИНН=7804535190) на сумму {day_amount} руб",
             "Sum": day_amount,
-            "ZReportNumber": '1100'
+            "ZReportNumber": z_number
         }
         requests.post(MOE_DELO_URL, data=document, headers=headers).json()
         return SUCCESS_MESSAGE
 
 
 if __name__ == '__main__':
-    print(create_document(get_orders()))
-
+    print(create_document(get_orders()[0], get_orders()[1]))

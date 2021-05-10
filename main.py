@@ -7,8 +7,10 @@ from dotenv import load_dotenv
 load_dotenv()
 
 DATE_FORMAT = "%Y-%m-%d"
-BEGIN_DATE = (datetime.datetime.today() - datetime.timedelta(days=1)).strftime(DATE_FORMAT)
-END_DATE = datetime.datetime.today().strftime(DATE_FORMAT)
+# BEGIN_DATE = (datetime.datetime.today() - datetime.timedelta(days=1)).strftime(DATE_FORMAT)
+# END_DATE = datetime.datetime.today().strftime(DATE_FORMAT)
+BEGIN_DATE = '2021-03-19'
+END_DATE = '2021-03-20'
 NO_MONEY_MESSAGE = 'Нет продаж по наличным за день'
 SUCCESS_MESSAGE = 'Выгрузка успешна'
 AQSI_URL = f'https://api.aqsi.ru/pub/v2/Receipts?filtered.BeginDate={BEGIN_DATE}&filtered.EndDate={END_DATE}&filtered.Operation=1'
@@ -38,7 +40,7 @@ def create_document(day_amount):
             "md-api-key": MOE_DELO_TOKEN
         }
         document = {
-            "DocDate": END_DATE,
+            "DocDate": BEGIN_DATE,
             "Description": f"Отчёт о продаже на точке Студия старинного танца Хрустальный дракон (ИНН=7804535190) на сумму {day_amount} руб",
             "Sum": day_amount,
             "ZReportNumber": '1100'
@@ -49,3 +51,4 @@ def create_document(day_amount):
 
 if __name__ == '__main__':
     print(create_document(get_orders()))
+

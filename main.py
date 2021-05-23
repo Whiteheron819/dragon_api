@@ -25,7 +25,7 @@ def get_orders():
         "x-client-key": AQSI_TOKEN
     }
     orders = requests.get(AQSI_URL, headers=headers).json()['rows']
-    z = requests.get(AQSI_URL, headers=headers).json()['rows'][0]['shiftNumber']
+    z = orders[0]['shiftNumber']
     for i in range(len(orders)):
         if orders[i]['content']['checkClose']['payments'][0]['acquiringData'] is None:
             amount_rub += int(orders[i]['content']['checkClose']['payments'][0]['amount'])
@@ -36,12 +36,12 @@ def create_document(day_amount, z_number):
     headers = {
         "md-api-key": MOE_DELO_TOKEN
     }
+    if day_amount == 0:
+        return NO_MONEY_MESSAGE
     if requests.get(MOE_DELO_DOCS_URL, headers=headers).json()['TotalCount'] != 0:
         day_count = requests.get(MOE_DELO_DOCS_URL, headers=headers).json()['ResourceList'][0]['ZReportNumber']
         if day_count == z_number:
             return ALREADY_HAVE_ERROR_MESSAGE
-    if day_amount == 0:
-        return NO_MONEY_MESSAGE
     else:
         document = {
             "DocDate": BEGIN_DATE,
@@ -50,7 +50,7 @@ def create_document(day_amount, z_number):
             "ZReportNumber": z_number
         }
         requests.post(MOE_DELO_URL, data=document, headers=headers).json()
-        return SUCCESS_MESSAGE
+        return f"Создан документ на сумму {day_amount}, номер смены {z_number}"
 
 
 if __name__ == '__main__':

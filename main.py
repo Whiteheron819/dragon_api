@@ -60,7 +60,7 @@ def main():
         rub, z_number = get_orders()
         logging.info(create_document(rub, z_number))
     except Exception as error:
-        logging(JSON_ERROR_MESSAGE.format(error=error))
+        logging.info(JSON_ERROR_MESSAGE.format(error=error))
 
 
 if __name__ == '__main__':

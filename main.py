@@ -1,7 +1,8 @@
-import os
 import datetime
-
+import logging
 import requests
+import os
+
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -9,6 +10,7 @@ load_dotenv()
 DATE_FORMAT = "%Y-%m-%d"
 BEGIN_DATE = (datetime.datetime.today() - datetime.timedelta(days=1)).strftime(DATE_FORMAT)
 END_DATE = datetime.datetime.today().strftime(DATE_FORMAT)
+JSON_ERROR_MESSAGE = 'Ошибка чтения JSON: {error}'
 ALREADY_HAVE_ERROR_MESSAGE = 'Такая смена уже существует!'
 NO_MONEY_MESSAGE = 'Нет продаж по наличным за день'
 SUCCESS_MESSAGE = 'Выгрузка успешна'
@@ -53,5 +55,18 @@ def create_document(day_amount, z_number):
         return f"Создан документ на сумму {day_amount}, номер смены {z_number}"
 
 
+def main():
+    try:
+        rub, z_number = get_orders()
+        logging.info(create_document(rub, z_number))
+    except Exception as error:
+        logging(JSON_ERROR_MESSAGE.format(error=error))
+
+
 if __name__ == '__main__':
-    print(create_document(get_orders()[0], get_orders()[1]))
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s; %(levelname)s; %(message)s',
+        filename=__file__+'.log'
+    )
+    main()

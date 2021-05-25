@@ -41,10 +41,8 @@ def create_document(day_amount, z_number):
         "md-api-key": MOE_DELO_TOKEN
     }
     orders = requests.get(MOE_DELO_DOCS_URL, headers=headers).json()
-    if orders['TotalCount'] != 0:
-        day_count = orders['ResourceList'][0]['ZReportNumber']
-        if day_count == z_number:
-            return ALREADY_HAVE_ERROR_MESSAGE
+    if orders['TotalCount'] != 0 and orders['ResourceList'][0]['ZReportNumber'] == z_number:
+        return ALREADY_HAVE_ERROR_MESSAGE
     else:
         document = {
             "DocDate": BEGIN_DATE,

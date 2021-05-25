@@ -27,21 +27,22 @@ def get_orders():
         "x-client-key": AQSI_TOKEN
     }
     orders = requests.get(AQSI_URL, headers=headers).json()['rows']
-    z = orders[0]['shiftNumber']
+    shift_number = orders[0]['shiftNumber']
     for i in range(len(orders)):
         if orders[i]['content']['checkClose']['payments'][0]['acquiringData'] is None:
             amount_rub += int(orders[i]['content']['checkClose']['payments'][0]['amount'])
-    return amount_rub, z
+    return amount_rub, shift_number
 
 
 def create_document(day_amount, z_number):
+    if day_amount == 0:
+        return NO_MONEY_MESSAGE
     headers = {
         "md-api-key": MOE_DELO_TOKEN
     }
-    if day_amount == 0:
-        return NO_MONEY_MESSAGE
-    if requests.get(MOE_DELO_DOCS_URL, headers=headers).json()['TotalCount'] != 0:
-        day_count = requests.get(MOE_DELO_DOCS_URL, headers=headers).json()['ResourceList'][0]['ZReportNumber']
+    orders = requests.get(MOE_DELO_DOCS_URL, headers=headers).json()
+    if orders['TotalCount'] != 0:
+        day_count = orders['ResourceList'][0]['ZReportNumber']
         if day_count == z_number:
             return ALREADY_HAVE_ERROR_MESSAGE
     else:
@@ -67,6 +68,6 @@ if __name__ == '__main__':
     logging.basicConfig(
         level=logging.INFO,
         format='%(asctime)s; %(levelname)s; %(message)s',
-        filename=__file__+'.log'
+        filename=__file__+'.txt'
     )
     main()

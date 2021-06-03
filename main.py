@@ -61,7 +61,7 @@ def create_document(day_amount, z_number):
 def send_mail(message):
     msg = MIMEMultipart()
     password = os.getenv('PASSWORD')
-    msg['From'] = "Whiteheron819@gmail.com"
+    msg['From'] = "Whiteheron819.tech.mail@gmail.com"
     msg['To'] = "nareiel@gmail.com"
     msg['Subject'] = EMAIL_SUBJECT
 

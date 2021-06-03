@@ -1,8 +1,11 @@
 import datetime
 import logging
-import requests
 import os
+import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 
+import requests
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -14,6 +17,7 @@ JSON_ERROR_MESSAGE = 'Ошибка чтения JSON: {error}'
 ALREADY_HAVE_ERROR_MESSAGE = 'Такая смена уже существует!'
 NO_MONEY_MESSAGE = 'Нет продаж по наличным за день'
 SUCCESS_MESSAGE = 'Выгрузка успешна'
+EMAIL_SUBJECT = f'Отчёт о продажах за {END_DATE}'
 AQSI_URL = f'https://api.aqsi.ru/pub/v2/Receipts?filtered.BeginDate={BEGIN_DATE}&filtered.EndDate={END_DATE}&filtered.Operation=1'
 AQSI_TOKEN = os.getenv('AQSI_TOKEN')
 MOE_DELO_URL = 'https://restapi.moedelo.org/accounting/api/v1/cashier/1/retailRevenue'
@@ -54,10 +58,27 @@ def create_document(day_amount, z_number):
         return f"Создан документ на сумму {day_amount}, номер смены {z_number}"
 
 
+def send_mail(message):
+    msg = MIMEMultipart()
+    password = os.getenv('PASSWORD')
+    msg['From'] = "Whiteheron819@gmail.com"
+    msg['To'] = "nareiel@gmail.com"
+    msg['Subject'] = EMAIL_SUBJECT
+
+    msg.attach(MIMEText(message, 'plain'))
+    server = smtplib.SMTP('smtp.gmail.com', 587)
+    server.starttls()
+    server.login(msg['From'], password)
+    server.sendmail(msg['From'], msg['To'], msg.as_string())
+    server.quit()
+
+
 def main():
     try:
         rub, z_number = get_orders()
         logging.info(create_document(rub, z_number))
+        if rub != 0:
+            send_mail(f'Создан документ на сумму {rub} рублей, смена номер {z_number}')
     except Exception as error:
         logging.info(JSON_ERROR_MESSAGE.format(error=error))
 

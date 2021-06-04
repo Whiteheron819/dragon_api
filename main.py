@@ -13,10 +13,13 @@ load_dotenv()
 DATE_FORMAT = "%Y-%m-%d"
 BEGIN_DATE = (datetime.datetime.today() - datetime.timedelta(days=1)).strftime(DATE_FORMAT)
 END_DATE = datetime.datetime.today().strftime(DATE_FORMAT)
+MAIL_FROM = os.getenv('MAIL_FROM')
+MAIL_TO = os.getenv('MAIL_TO')
+DESCRIPTION_MESSAGE = "Отчёт о продаже на точке Студия старинного танца Хрустальный дракон (ИНН=7804535190) на сумму {day_amount} руб"
 JSON_ERROR_MESSAGE = 'Ошибка чтения JSON: {error}'
 ALREADY_HAVE_ERROR_MESSAGE = 'Такая смена уже существует!'
 NO_MONEY_MESSAGE = 'Нет продаж по наличным за день'
-SUCCESS_MESSAGE = 'Выгрузка успешна'
+SUCCESS_MESSAGE = 'Создан документ на сумму {day_amount} рублей, смена номер {z_number}'
 EMAIL_SUBJECT = f'Отчёт о продажах за {END_DATE}'
 AQSI_URL = f'https://api.aqsi.ru/pub/v2/Receipts?filtered.BeginDate={BEGIN_DATE}&filtered.EndDate={END_DATE}&filtered.Operation=1'
 AQSI_TOKEN = os.getenv('AQSI_TOKEN')
@@ -50,19 +53,21 @@ def create_document(day_amount, z_number):
     else:
         document = {
             "DocDate": BEGIN_DATE,
-            "Description": f"Отчёт о продаже на точке Студия старинного танца Хрустальный дракон (ИНН=7804535190) на сумму {day_amount} руб",
+            "Description": DESCRIPTION_MESSAGE.format(day_amount=day_amount),
             "Sum": day_amount,
             "ZReportNumber": z_number
         }
+        success = SUCCESS_MESSAGE.format(day_amount=day_amount, z_number=z_number)
         requests.post(MOE_DELO_URL, data=document, headers=headers).json()
-        return f"Создан документ на сумму {day_amount}, номер смены {z_number}"
+        send_mail(success)
+        return success
 
 
 def send_mail(message):
     msg = MIMEMultipart()
     password = os.getenv('PASSWORD')
-    msg['From'] = "Whiteheron819.tech.mail@gmail.com"
-    msg['To'] = "nareiel@gmail.com"
+    msg['From'] = MAIL_FROM
+    msg['To'] = MAIL_TO
     msg['Subject'] = EMAIL_SUBJECT
 
     msg.attach(MIMEText(message, 'plain'))
@@ -77,8 +82,6 @@ def main():
     try:
         rub, z_number = get_orders()
         logging.info(create_document(rub, z_number))
-        if rub != 0:
-            send_mail(f'Создан документ на сумму {rub} рублей, смена номер {z_number}')
     except Exception as error:
         logging.info(JSON_ERROR_MESSAGE.format(error=error))
 

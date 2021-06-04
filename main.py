@@ -15,7 +15,7 @@ BEGIN_DATE = (datetime.datetime.today() - datetime.timedelta(days=1)).strftime(D
 END_DATE = datetime.datetime.today().strftime(DATE_FORMAT)
 MAIL_FROM = os.getenv('MAIL_FROM')
 MAIL_TO = os.getenv('MAIL_TO')
-DESCRIPTION_MESSAGE = "Отчёт о продаже на точке Студия старинного танца Хрустальный дракон (ИНН=7804535190) на сумму {day_amount} руб"
+DESCRIPTION_MESSAGE = 'Отчёт о продаже на точке Студия старинного танца Хрустальный дракон (ИНН=7804535190) на сумму {day_amount} руб'
 JSON_ERROR_MESSAGE = 'Ошибка чтения JSON: {error}'
 ALREADY_HAVE_ERROR_MESSAGE = 'Такая смена уже существует!'
 NO_MONEY_MESSAGE = 'Нет продаж по наличным за день'

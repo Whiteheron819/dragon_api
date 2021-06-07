@@ -34,14 +34,15 @@ def get_orders():
         "x-client-key": AQSI_TOKEN
     }
     orders = requests.get(AQSI_URL, headers=headers).json()['rows']
-    try:
+    if 'shiftNumber' in orders[0]:
         shift_number = orders[0]['shiftNumber']
         for i in range(len(orders)):
             if orders[i]['content']['checkClose']['payments'][0]['acquiringData'] is None:
                 amount_rub += int(orders[i]['content']['checkClose']['payments'][0]['amount'])
-    except IndexError:
-        amount_rub, shift_number = 0, 0
-    return amount_rub, shift_number
+        return amount_rub, shift_number
+    else:
+        return 0, 0
+
 
 
 def create_document(day_amount, z_number):

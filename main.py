@@ -34,10 +34,13 @@ def get_orders():
         "x-client-key": AQSI_TOKEN
     }
     orders = requests.get(AQSI_URL, headers=headers).json()['rows']
-    shift_number = orders[0]['shiftNumber']
-    for i in range(len(orders)):
-        if orders[i]['content']['checkClose']['payments'][0]['acquiringData'] is None:
-            amount_rub += int(orders[i]['content']['checkClose']['payments'][0]['amount'])
+    try:
+        shift_number = orders[0]['shiftNumber']
+        for i in range(len(orders)):
+            if orders[i]['content']['checkClose']['payments'][0]['acquiringData'] is None:
+                amount_rub += int(orders[i]['content']['checkClose']['payments'][0]['amount'])
+    except IndexError:
+        amount_rub, shift_number = 0, 0
     return amount_rub, shift_number
 
 
@@ -83,7 +86,7 @@ def main():
         rub, z_number = get_orders()
         logging.info(create_document(rub, z_number))
     except Exception as error:
-        logging.info(JSON_ERROR_MESSAGE.format(error=error))
+        logging.info(JSON_ERROR_MESSAGE.format(error=error)), exit(1)
 
 
 if __name__ == '__main__':

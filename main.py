@@ -75,9 +75,7 @@ def send_mail(message):
     msg['Subject'] = EMAIL_SUBJECT
 
     msg.attach(MIMEText(message, 'plain'))
-    server = smtplib.SMTP('smtp.gmail.com', 587)
-    server.starttls()
-    server.login(msg['From'], password)
+    server = smtplib.SMTP('localhost', 25)
     server.sendmail(msg['From'], msg['To'], msg.as_string())
     server.quit()
 

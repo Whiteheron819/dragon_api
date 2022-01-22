@@ -31,7 +31,7 @@ MOE_DELO_TOKEN = os.getenv('MOE_DELO_TOKEN')
 
 def requests_get(url, headers):
     for i in range(10):
-        r = requests.get(url, headers)
+        r = requests.get(url, headers=headers)
         if r.status_code == 200:
             return r
         sleep(10)

@@ -4,6 +4,7 @@ import os
 import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+from time import sleep
 
 import requests
 from dotenv import load_dotenv
@@ -28,21 +29,33 @@ MOE_DELO_DOCS_URL = f'https://restapi.moedelo.org/accounting/api/v1/cashier/1/re
 MOE_DELO_TOKEN = os.getenv('MOE_DELO_TOKEN')
 
 
+def requests_get(url, headers):
+    for i in range(10):
+        r = requests.get(url, headers)
+        if r.status_code == 200:
+            return r
+        sleep(10)
+    logging.info(f'Failed to retrieve URL: {url}')
+    return False
+
+
 def get_orders():
     amount_rub = 0
     headers = {
         "x-client-key": AQSI_TOKEN
     }
-    orders = requests.get(AQSI_URL, headers=headers).json()['rows']
-    if 'shiftNumber' in orders[0]:
-        shift_number = orders[0]['shiftNumber']
-        for i in range(len(orders)):
-            if orders[i]['content']['checkClose']['payments'][0]['acquiringData'] is None:
-                amount_rub += int(orders[i]['content']['checkClose']['payments'][0]['amount'])
-        return amount_rub, shift_number
-    else:
-        return 0, 0
-
+    r = requests_get(AQSI_URL, headers=headers)
+    if r is not False:
+        rj = r.json()
+        if 'rows' in rj:
+            orders = rj['rows']
+            if isinstance(orders, list) and 'shiftNumber' in orders[0]:
+                shift_number = orders[0]['shiftNumber']
+                for i in range(len(orders)):
+                    if orders[i]['content']['checkClose']['payments'][0]['acquiringData'] is None:
+                        amount_rub += int(orders[i]['content']['checkClose']['payments'][0]['amount'])
+                return amount_rub, shift_number
+    return 0, 0
 
 
 def create_document(day_amount, z_number):
@@ -51,7 +64,10 @@ def create_document(day_amount, z_number):
     headers = {
         "md-api-key": MOE_DELO_TOKEN
     }
-    orders = requests.get(MOE_DELO_DOCS_URL, headers=headers).json()
+    r = requests_get(MOE_DELO_DOCS_URL, headers=headers)
+    if r is False:
+        return "Не получилось получить данные Моё Дело"
+    orders = r.json()
     if orders['TotalCount'] != 0 and orders['ResourceList'][0]['ZReportNumber'] == z_number:
         return ALREADY_HAVE_ERROR_MESSAGE
     else:

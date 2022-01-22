@@ -2,11 +2,10 @@ import datetime
 import logging
 import os
 import smtplib
+import requests
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from time import sleep
-
-import requests
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -49,7 +48,7 @@ def get_orders():
         rj = r.json()
         if 'rows' in rj:
             orders = rj['rows']
-            if isinstance(orders, list) and 'shiftNumber' in orders[0]:
+            if isinstance(orders, list) and len(orders) > 0 and 'shiftNumber' in orders[0]:
                 shift_number = orders[0]['shiftNumber']
                 for i in range(len(orders)):
                     if orders[i]['content']['checkClose']['payments'][0]['acquiringData'] is None:

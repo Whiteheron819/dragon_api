@@ -42,7 +42,7 @@ def requests_post(url, data, headers):
     for i in range(10):
         r = requests.post(url=url, data=data, headers=headers)
         if r.status_code == 200:
-            return True
+            return r
     logging.critical(f'Failed to post data to {url}; status code: {r.status_code}')
     exit(1)
 
@@ -81,7 +81,7 @@ def create_document(day_amount, z_number):
             "ZReportNumber": z_number
         }
         success = SUCCESS_MESSAGE.format(day_amount=day_amount, z_number=z_number)
-        requests_post(url=MOE_DELO_URL, data=document, headers=headers)
+        requests_post(url=MOE_DELO_URL, data=document, headers=headers).json()
         send_mail(success)
         return success
 

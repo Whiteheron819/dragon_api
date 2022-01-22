@@ -35,7 +35,7 @@ def requests_get(url, headers):
         if r.status_code == 200:
             return r
         sleep(10)
-    logging.info(f'Failed to retrieve URL: {url}')
+    logging.info(f'Failed to retrieve URL: {url}; status code: {r.status_code}')
     return False
 
 

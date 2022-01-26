@@ -43,6 +43,7 @@ def requests_post(url, data, headers):
         r = requests.post(url=url, data=data, headers=headers)
         if r.status_code == 200:
             return r
+        sleep(10)
     logging.critical(f'Failed to post data to {url}; status code: {r.status_code}')
     exit(1)
 

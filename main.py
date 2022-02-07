@@ -28,20 +28,20 @@ MOE_DELO_DOCS_URL = f'https://restapi.moedelo.org/accounting/api/v1/cashier/1/re
 MOE_DELO_TOKEN = os.getenv('MOE_DELO_TOKEN')
 
 
-def requests_get(url, headers):
+def requests_get(url, headers, expected_status={200}):
     for i in range(10):
         r = requests.get(url=url, headers=headers)
-        if r.status_code == 200:
+        if r.status_code in expected_status:
             return r
         sleep(10)
     logging.critical(f'Failed to retrieve URL: {url}; status code: {r.status_code}')
     exit(1)
 
 
-def requests_post(url, data, headers):
+def requests_post(url, data, headers, expected_status={200}):
     for i in range(10):
         r = requests.post(url=url, data=data, headers=headers)
-        if r.status_code == 200:
+        if r.status_code in expected_status:
             return r
         sleep(10)
     logging.critical(f'Failed to post data to {url}; status code: {r.status_code}')
@@ -82,7 +82,7 @@ def create_document(day_amount, z_number):
             "ZReportNumber": z_number
         }
         success = SUCCESS_MESSAGE.format(day_amount=day_amount, z_number=z_number)
-        requests_post(url=MOE_DELO_URL, data=document, headers=headers).json()
+        requests_post(url=MOE_DELO_URL, data=document, headers=headers, expected_status={201}).json()
         send_mail(success)
         return success
 

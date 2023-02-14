@@ -2,10 +2,11 @@ import datetime
 import logging
 import os
 import smtplib
-import requests
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from time import sleep
+
+import requests
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -29,7 +30,7 @@ MOE_DELO_TOKEN = os.getenv('MOE_DELO_TOKEN')
 
 
 def requests_get(url, headers, expected_status={200}):
-    for i in range(10):
+    for _ in range(10):
         r = requests.get(url=url, headers=headers)
         if r.status_code in expected_status:
             return r
@@ -39,7 +40,7 @@ def requests_get(url, headers, expected_status={200}):
 
 
 def requests_post(url, data, headers, expected_status={200}):
-    for i in range(10):
+    for _ in range(10):
         r = requests.post(url=url, data=data, headers=headers)
         if r.status_code in expected_status:
             return r
@@ -89,7 +90,6 @@ def create_document(day_amount, z_number):
 
 def send_mail(message):
     msg = MIMEMultipart()
-    password = os.getenv('PASSWORD')
     msg['From'] = MAIL_FROM
     msg['To'] = MAIL_TO
     msg['Subject'] = EMAIL_SUBJECT
@@ -111,6 +111,6 @@ if __name__ == '__main__':
     logging.basicConfig(
         level=logging.INFO,
         format='%(asctime)s; %(levelname)s; %(message)s',
-        filename=__file__+'.txt'
+        filename=__file__ + '.txt'
     )
     main()
